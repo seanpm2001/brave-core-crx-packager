@@ -12,11 +12,21 @@ const ipfsVersion = '0.9.1'
 const fsRepoVersion = '1.0.0'
 
 const executeWithRetry = (cmd, limit) => {
-  let retry = 0;
-  while(execSync(cmd) && retry < limit) retry++;
-  if (retry == limit) {
+  let retry = limit;
+  let result = 1;
+  while(retry > 0 && result) {
+    retry--;
+    try {
+      result = execSync(cmd);
+    } catch(e) {
+      console.log(e)
+    }
+    console.log("retry:", retry, "result:", result)
+  }
+  if (!retry) {
     throw new Error('Retries limit exceeded for command: ' + cmd)
   }
+
 }
 
 // Downloads the current (platform-specific) fs-repo-migration component
