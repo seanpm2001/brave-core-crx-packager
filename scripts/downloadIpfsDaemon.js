@@ -11,6 +11,11 @@ const util = require('../lib/util')
 const ipfsVersion = '0.9.1'
 const fsRepoVersion = '1.0.0'
 
+const executeWithRetry = (cmd) => {
+  let retry = 0;
+  while(execSync(cmd) && retry < 3) retry++;
+}
+
 // Downloads the current (platform-specific) fs-repo-migration component
 const downloadFsRepoMigration = (platform) => {
   if (platform !== 'darwin')
@@ -45,7 +50,7 @@ const downloadFsRepoMigration = (platform) => {
   const cmd = `curl -s ${ipfsURL} | ${decompress} && ${move} && ${copy} && ${rm}`
   console.log(cmd)
   // Download and decompress the client
-  execSync(cmd)
+  executeWithRetry(cmd)
 
   // Verify the checksum
   if (!verifyChecksum(repoTool, sha512IPFS)) {
@@ -96,7 +101,7 @@ const downloadIpfsDaemon = (platform) => {
   const cmd = `curl -s ${ipfsURL} | ${decompress} && ${copy}`
 
   // Download and decompress the client
-  execSync(cmd)
+  executeWithRetry(cmd)
 
   // Verify the checksum
   if (!verifyChecksum(ipfsDaemon, sha512IPFS)) {
